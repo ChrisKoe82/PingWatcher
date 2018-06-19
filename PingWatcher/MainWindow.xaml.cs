@@ -5,7 +5,7 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Threading;
 using System.Windows;
-using System.Windows.Controls;
+using System.Windows.Forms;
 
 namespace PingWatcher
 {
@@ -17,30 +17,66 @@ namespace PingWatcher
         #region Fields
         public static Thread t = new Thread(() => PingThread());
         public static MainWindow m_MainWindow;
-        public static TextBox m_TbNotification;
-        public static TextBox m_TbAvgPingOut;
-        public static TextBox m_TbTimeOutsOut;
-        public static TextBox m_TbAvgPingGateway;
-        public static TextBox m_TbTimeOutsGateway;
-        public static Int32 m_Interval;
+        public static System.Windows.Controls.TextBox m_TbNotification;
+        public static System.Windows.Controls.TextBox m_TbAvgPingOut;
+        public static System.Windows.Controls.TextBox m_TbTimeOutsOut;
+        public static System.Windows.Controls.TextBox m_TbAvgPingGateway;
+        public static System.Windows.Controls.TextBox m_TbTimeOutsGateway;
+        public static long m_Interval;
         public static ManualResetEvent _suspendEvent = new ManualResetEvent(true);
         public static IPAddress m_GatewayAddress;
         public static IPAddress m_targetAddress;
+        public static NotifyIcon ni;
         #endregion
 
         public MainWindow()
         {
             InitializeComponent();
+
+            ni = new System.Windows.Forms.NotifyIcon
+            {
+                Icon = new System.Drawing.Icon(@"C:\Users\Computer\Documents\Visual Studio 2017\Projects\PingWatcher\PingWatcher\Images\147227.ico"),
+                Visible = true
+            };
+            ni.DoubleClick +=
+                delegate (object sender, EventArgs args)
+                {
+                    this.Show();
+                    this.WindowState = WindowState.Normal;
+                };
+            ni.MouseClick += new MouseEventHandler(TrayIconClicked);
+            
             m_GatewayAddress = GetDefaultGateway();
             tbGatewayIp.Text = m_GatewayAddress.ToString();
             m_targetAddress = IPAddress.Parse(tbTargetIp.Text);
-            m_MainWindow = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
+            m_MainWindow = System.Windows.Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
             m_TbNotification = m_MainWindow.tbNotifications;
             m_TbAvgPingOut = m_MainWindow.tbAvgPingOut;
             m_TbTimeOutsOut = m_MainWindow.tbTimeOutsOut;
             m_TbAvgPingGateway = m_MainWindow.tbAvgPingGateway;
             m_TbTimeOutsGateway = m_MainWindow.tbTimeOutsGateway;
             m_Interval = Convert.ToInt16(tbInterval.Text) * 1000;
+        }
+
+        void TrayIconClicked(object sender, MouseEventArgs e)
+        {
+            if (e.Button==MouseButtons.Right)
+            {
+                //System.Windows.Controls.ContextMenu menu = this.FindResource("TrayIconContextMenu") as ContextMenu;
+                
+            }
+        }
+
+        private void Click_Exit(object sender, RoutedEventArgs e)
+        {
+            _suspendEvent.Reset();
+            WindowState = WindowState.Normal; 
+        }
+
+        protected override void OnStateChanged(EventArgs e)
+        {
+            if (WindowState == WindowState.Minimized) this.Hide();
+            base.OnStateChanged(e);
         }
 
         private void btnStart_Click(object sender, RoutedEventArgs e)
@@ -153,8 +189,8 @@ namespace PingWatcher
 
         public static void WriteToNotificationWindow(string message)
         {
-            Application.Current.Dispatcher.Invoke(() => m_TbNotification.AppendText(message + "\r\n"));
-            Application.Current.Dispatcher.Invoke(() => m_TbNotification.ScrollToEnd());
+            System.Windows.Application.Current.Dispatcher.Invoke(() => m_TbNotification.AppendText(message + "\r\n"));
+            System.Windows.Application.Current.Dispatcher.Invoke(() => m_TbNotification.ScrollToEnd());
         }
 
         public static void PingThread()
@@ -200,10 +236,15 @@ namespace PingWatcher
         public static void UpdateMainWindow()
         {
             Commons.PingInformation info = DbConnection.PingInformation(m_targetAddress.ToString(), m_GatewayAddress.ToString());
-            Application.Current.Dispatcher.Invoke(() => m_TbAvgPingGateway.Text = info.GatewayPing.ToString());
-            Application.Current.Dispatcher.Invoke(() => m_TbTimeOutsGateway.Text = info.GatewayTimeouts.ToString());
-            Application.Current.Dispatcher.Invoke(() => m_TbAvgPingOut.Text = info.TargetPing.ToString());
-            Application.Current.Dispatcher.Invoke(() => m_TbTimeOutsOut.Text = info.TargetTimeouts.ToString());
+            System.Windows.Application.Current.Dispatcher.Invoke(() => m_TbAvgPingGateway.Text = info.GatewayPing.ToString());
+            System.Windows.Application.Current.Dispatcher.Invoke(() => m_TbTimeOutsGateway.Text = info.GatewayTimeouts.ToString());
+            System.Windows.Application.Current.Dispatcher.Invoke(() => m_TbAvgPingOut.Text = info.TargetPing.ToString());
+            System.Windows.Application.Current.Dispatcher.Invoke(() => m_TbTimeOutsOut.Text = info.TargetTimeouts.ToString());
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

@@ -5,7 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PingWatcher"
         mc:Ignorable="d"
-        Title="Ping Watcher" Height="450" Width="542.063">
+        Title="Ping Watcher" Height="450" Width="542.063" Icon="Images/147227.ico">
+    <Window.Resources>
+        <ContextMenu x:Key="TrayIconContextMenu" Placement="MousePoint">
+            <MenuItem Header="Exit" Click="Click_Exit"/>
+        </ContextMenu>
+    </Window.Resources>
     <Grid>
         <TextBox x:Name="tbNotifications" HorizontalAlignment="Left" Height="367" Margin="258,42,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="266" VerticalScrollBarVisibility="Auto"/>
         <Label Content="Target IP" HorizontalAlignment="Left" Height="27" Margin="10,10,0,0" VerticalAlignment="Top" Width="58" RenderTransformOrigin="-0.224,-0.402"/>
